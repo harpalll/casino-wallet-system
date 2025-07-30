@@ -127,11 +127,14 @@
         const password = document.getElementById("password").value;
 
         try {
-          const response = await fetch("http://localhost:3000/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-          });
+          const response = await fetch(
+            "https://casino-wallet-system.onrender.com/api/register",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            }
+          );
 
           const result = await response.json();
           console.log(result);
@@ -149,11 +152,14 @@
         const password = document.getElementById("lpassword").value;
 
         try {
-          const response = await fetch("http://localhost:3000/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-          });
+          const response = await fetch(
+            "https://casino-wallet-system.onrender.com/api/login",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            }
+          );
 
           const result = await response.json();
           console.log(result);
@@ -180,7 +186,7 @@
 
         try {
           const response = await fetch(
-            `http://localhost:3000/api/balance?username=${currentUser.innerHTML}`,
+            `https://casino-wallet-system.onrender.com/api/balance?username=${currentUser.innerHTML}`,
             {
               method: "GET",
               headers: {
@@ -225,7 +231,7 @@
 
         try {
           const response = await fetch(
-            `http://localhost:3000/api/transactions?username=${currentUser.innerHTML}`,
+            `https://casino-wallet-system.onrender.com/api/transactions?username=${currentUser.innerHTML}`,
             {
               method: "GET",
               headers: {
@@ -282,11 +288,17 @@
         const amount = document.getElementById("damount").value;
 
         try {
-          const response = await fetch("http://localhost:3000/api/deposit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", username: username },
-            body: JSON.stringify({ username, currency, amount }),
-          });
+          const response = await fetch(
+            "https://casino-wallet-system.onrender.com/api/deposit",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                username: username,
+              },
+              body: JSON.stringify({ username, currency, amount }),
+            }
+          );
 
           const result = await response.json();
           console.log(result);
@@ -305,11 +317,17 @@
         const amount = document.getElementById("pamount").value;
 
         try {
-          const response = await fetch("http://localhost:3000/api/play", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", username: username },
-            body: JSON.stringify({ username, currency, amount }),
-          });
+          const response = await fetch(
+            "https://casino-wallet-system.onrender.com/api/play",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                username: username,
+              },
+              body: JSON.stringify({ username, currency, amount }),
+            }
+          );
 
           const result = await response.json();
           console.log(result);
@@ -336,11 +354,17 @@
         const amount = document.getElementById("wamount").value;
 
         try {
-          const response = await fetch("http://localhost:3000/api/withdraw", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", username: username },
-            body: JSON.stringify({ username, currency, amount }),
-          });
+          const response = await fetch(
+            "https://casino-wallet-system.onrender.com/api/withdraw",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                username: username,
+              },
+              body: JSON.stringify({ username, currency, amount }),
+            }
+          );
 
           const result = await response.json();
           console.log(result);
