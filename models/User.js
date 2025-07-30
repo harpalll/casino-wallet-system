@@ -9,6 +9,7 @@ const walletSchema = mongoose.Schema({
 
 const userSchema = mongoose.Schema({
   username: String,
+  password: String,
   wallets: walletSchema,
   transcations: [Object],
 });

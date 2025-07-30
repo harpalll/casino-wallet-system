@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Casino Wallet</title>
+  </head>
+  <body>
+    <h3>Current User:</h3>
+    <div id="currUser"></div>
+
+    <h1>AUTH FLOW:</h1>
+    <div style="display: flex">
+      <div>
+        <h1>Register Form</h1>
+        <form>
+          <label for="username">Username: </label>
+          <input type="text" name="username" id="username" />
+
+          <label for="password">password: </label>
+          <input type="password" name="password" id="password" />
+
+          <button id="registerBtn">Register</button>
+        </form>
+      </div>
+
+      <div>
+        <h1>Login Form</h1>
+        <form>
+          <label for="lusername">Username: </label>
+          <input type="text" name="lusername" id="lusername" />
+
+          <label for="lpassword">password: </label>
+          <input type="password" name="lpassword" id="lpassword" />
+
+          <button id="loginBtn">Login</button>
+        </form>
+      </div>
+
+      <div>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <h1>Game FLow:</h1>
+    <div>
+      <div>
+        <h2>Balance:</h2>
+        <div id="balance"></div>
+        <button id="getBalanceBtn">get Balance</button>
+      </div>
+
+      <div>
+        <h2>transactions:</h2>
+        <div id="transactions"></div>
+        <button id="getTransactionsBtn">get transactions</button>
+      </div>
+
+      <div>
+        <h2>deposit:</h2>
+        <form>
+          <label for="dcurrency">currency: </label>
+          <!-- <input type="text" name="dcurrency" id="dcurrency" /> -->
+          <select name="dcurrency" id="dcurrency">
+            <option value="BTC">BTC</option>
+            <option value="ETH">ETH</option>
+            <option value="SOL">SOL</option>
+            <option value="DOGE">DOGE</option>
+          </select>
+
+          <label for="damount">amount: </label>
+          <input type="number" name="damount" id="damount" />
+
+          <button id="depositBtn">deposit</button>
+        </form>
+      </div>
+
+      <div>
+        <h2>play:</h2>
+        <form>
+          <label for="pcurrency">currency: </label>
+          <!-- <input type="text" name="pcurrency" id="pcurrency" /> -->
+          <select name="pcurrency" id="pcurrency">
+            <option value="BTC">BTC</option>
+            <option value="ETH">ETH</option>
+            <option value="SOL">SOL</option>
+            <option value="DOGE">DOGE</option>
+          </select>
+
+          <label for="pamount">amount: </label>
+          <input type="number" name="pamount" id="pamount" />
+
+          <button id="playBtn">play</button>
+        </form>
+      </div>
+
+      <div>
+        <h2>withdraw:</h2>
+        <form>
+          <label for="wcurrency">currency: </label>
+          <!-- <input type="text" name="wcurrency" id="wcurrency" /> -->
+          <select name="wcurrency" id="wcurrency">
+            <option value="BTC">BTC</option>
+            <option value="ETH">ETH</option>
+            <option value="SOL">SOL</option>
+            <option value="DOGE">DOGE</option>
+          </select>
+
+          <label for="wamount">amount: </label>
+          <input type="number" name="wamount" id="wamount" />
+
+          <button id="withdrawBtn">withdraw</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const registerBtn = document.getElementById("registerBtn");
+      const currentUser = document.getElementById("currUser");
+
+      currentUser.innerHTML = localStorage.getItem("username");
+
+      registerBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const loginBtn = document.getElementById("loginBtn");
+
+      loginBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("lusername").value;
+        const password = document.getElementById("lpassword").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+
+          if (result) {
+            currentUser.innerHTML = result.user.username;
+            localStorage.setItem("username", result.user.username);
+          }
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        currentUser.innerHTML = "";
+        localStorage.removeItem("username");
+      });
+
+      const getBalanceBtn = document.getElementById("getBalanceBtn");
+      getBalanceBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/balance?username=${currentUser.innerHTML}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                username: localStorage.getItem("username"),
+              },
+            }
+          );
+
+          const result = await response.json();
+          console.log(result.balance);
+          let clutter = ``;
+
+          if (result) {
+            for (const currency in result.balance) {
+              if (
+                Object.prototype.hasOwnProperty.call(result.balance, currency)
+              ) {
+                const element = result.balance[currency];
+                if (currency == "_id" || currency == "undefined") {
+                  continue;
+                }
+                console.log(element);
+                clutter += `
+                  <p>${currency}</p>
+                  <p>${element.address} - ${element.balance}</p>
+                  <hr>
+                `;
+              }
+            }
+
+            document.getElementById("balance").innerHTML += clutter;
+          }
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const getTransactionsBtn = document.getElementById("getTransactionsBtn");
+      getTransactionsBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/transactions?username=${currentUser.innerHTML}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                username: localStorage.getItem("username"),
+              },
+            }
+          );
+
+          const result = await response.json();
+          console.log(result.transcations);
+          let clutter = ``;
+
+          if (result) {
+            for (const transaction in result.transcations) {
+              if (
+                Object.prototype.hasOwnProperty.call(
+                  result.transcations,
+                  transaction
+                )
+              ) {
+                const element = result.transcations[transaction];
+                console.log(element);
+
+                if (element.type === "Game") {
+                  clutter += `
+                  <p>Type : ${element.type}</p>
+                  <p>${element.result} - ${element.bet}</p>
+                  <hr>
+                `;
+                } else {
+                  clutter += `
+                  <p>Type : ${element.type}</p>
+                  <p>${element.currency} - ${element.amount}</p>
+                  <hr>
+                `;
+                }
+              }
+            }
+
+            document.getElementById("transactions").innerHTML += clutter;
+          }
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const depositBtn = document.getElementById("depositBtn");
+      depositBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const username = localStorage.getItem("username");
+        const currency = document.getElementById("dcurrency").value;
+        const amount = document.getElementById("damount").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/api/deposit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", username: username },
+            body: JSON.stringify({ username, currency, amount }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+          alert("Deposit successfull.");
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const playBtn = document.getElementById("playBtn");
+      playBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const username = localStorage.getItem("username");
+        const currency = document.getElementById("pcurrency").value;
+        const amount = document.getElementById("pamount").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/api/play", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", username: username },
+            body: JSON.stringify({ username, currency, amount }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+          if (result.result === "won") {
+            alert(
+              `YAYY! YOU WON current Balance: ${result.currencyInWallet.balance}`
+            );
+          } else if (result.result === "lost") {
+            alert(
+              `AMMM! YOU LOST current Balance: ${result.currencyInWallet.balance}`
+            );
+          }
+        } catch (error) {
+          alert(error);
+        }
+      });
+
+      const withdrawBtn = document.getElementById("withdrawBtn");
+      withdrawBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const username = localStorage.getItem("username");
+        const currency = document.getElementById("wcurrency").value;
+        const amount = document.getElementById("wamount").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/api/withdraw", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", username: username },
+            body: JSON.stringify({ username, currency, amount }),
+          });
+
+          const result = await response.json();
+          console.log(result);
+          alert(
+            `Withdraw successfull. current Balance: ${result.currencyInWallet.balance}`
+          );
+        } catch (error) {
+          alert(error);
+        }
+      });
+    </script>
+  </body>
+</html>

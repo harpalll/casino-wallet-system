@@ -28,12 +28,24 @@ const casino = {
   },
 };
 
+// middlewares
+const authMiddleware = async (req, res, next) => {
+  if (req.headers.username) {
+    next();
+  } else {
+    return res.status(403).json({
+      msg: "unauthenticated",
+    });
+  }
+};
+
 router.post("/register", async (req, res) => {
-  const { username } = req.body;
+  const { username, password } = req.body;
 
   try {
     const user = await User.create({
       username,
+      password,
       wallets: {
         BTC: { address: addresses.BTC },
         ETH: { address: addresses.ETH },
@@ -56,7 +68,31 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/deposit", async (req, res) => {
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username, password });
+
+    if (user) {
+      return res.status(200).json({
+        msg: "Logged in successfully.",
+        user,
+      });
+    } else {
+      return res.status(400).json({
+        msg: "Invalid Credentials.",
+      });
+    }
+  } catch (error) {
+    return res.status(404).json({
+      msg: "Error in registering the user.",
+      error,
+    });
+  }
+});
+
+router.post("/deposit", authMiddleware, async (req, res) => {
   const { username, currency, amount } = req.body;
 
   try {
@@ -94,7 +130,7 @@ router.post("/deposit", async (req, res) => {
   }
 });
 
-router.post("/play", async (req, res) => {
+router.post("/play", authMiddleware, async (req, res) => {
   const { username, currency, amount } = req.body;
   const bet = Number(amount);
 
@@ -135,6 +171,7 @@ router.post("/play", async (req, res) => {
 
       return res.status(200).json({
         msg: `${result} - Bet: ${amount}`,
+        result,
         currencyInWallet: user.wallets[currency],
       });
     }
@@ -146,7 +183,7 @@ router.post("/play", async (req, res) => {
   }
 });
 
-router.post("/withdraw", async (req, res) => {
+router.post("/withdraw", authMiddleware, async (req, res) => {
   const { username, currency, amount } = req.body;
   const amountToBeWithDrawn = Number(amount);
 
@@ -198,7 +235,7 @@ router.post("/withdraw", async (req, res) => {
   }
 });
 
-router.get("/balance", async (req, res) => {
+router.get("/balance", authMiddleware, async (req, res) => {
   const { username } = req.query;
 
   try {
@@ -218,7 +255,7 @@ router.get("/balance", async (req, res) => {
   }
 });
 
-router.get("/transactions", async (req, res) => {
+router.get("/transactions", authMiddleware, async (req, res) => {
   const { username } = req.query;
 
   try {
